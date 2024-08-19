@@ -1,4 +1,4 @@
-   <img src="image.png" alt="Curl page" height="500" />
+   <img src="image.png" alt="Curl page" height="300" />
 
 ### 1. **Create a Google Cloud Account**
    - If you don’t have a Google Cloud account, go to the [Google Cloud Console](https://console.cloud.google.com/) and sign up. Google offers a free trial with some credits that you can use for their services.
