@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>HTML Geolocation</h1>
+<h2>Developed My Fahim Shariar</h2>
+<p>Click the button to get your coordinates and display your location on the map.</p>
+
+<div style="display: flex; justify-content: center;">
+    <button style="width: 100px; height: 50px;" onclick="getLocation()">Try It</button>
+</div>
+
+
+<p id="demo"></p>
+
+<div id="map" style="height: 400px; width: 100%;"></div>
+
+<script>
+// Get the demo element
+const x = document.getElementById("demo");
+
+// Function to get location
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition, showError);
+  } else { 
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+// Function to show position
+function showPosition(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  x.innerHTML = "Latitude: " + lat + "<br>Longitude: " + lon;
+  showMap(lat, lon);
+}
+
+// Function to show map
+function showMap(lat, lon) {
+  const mapProp = {
+    center: new google.maps.LatLng(lat, lon),
+    zoom: 15,
+  };
+  const map = new google.maps.Map(document.getElementById("map"), mapProp);
+  const marker = new google.maps.Marker({
+    position: new google.maps.LatLng(lat, lon),
+    map: map,
+  });
+}
+
+// Function to handle errors
+function showError(error) {
+  switch(error.code) {
+    case error.PERMISSION_DENIED:
+      x.innerHTML = "User denied the request for Geolocation.";
+      break;
+    case error.POSITION_UNAVAILABLE:
+      x.innerHTML = "Location information is unavailable.";
+      break;
+    case error.TIMEOUT:
+      x.innerHTML = "The request to get user location timed out.";
+      break;
+    case error.UNKNOWN_ERROR:
+      x.innerHTML = "An unknown error occurred.";
+      break;
+  }
+}
+</script>
+
+<!-- Include Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+
+</body>
+</html>
