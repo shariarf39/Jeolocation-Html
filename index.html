@@ -1,70 +1,75 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Get User Location and Show on Map</title>
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
 <body>
-<h1>HTML Geolocation</h1>
-<h2>Developed My Fahim Shariar</h2>
-<p>Click the button to get your coordinates and display your location on the map.</p>
 
-<div style="display: flex; justify-content: center;">
-    <button style="width: 100px; height: 50px;" onclick="getLocation()">Try It</button>
-</div>
+<h1>User Location</h1>
+<p>Your location will be sent to the server and displayed on the map when you open this page.</p>
+<p id="status"></p>
 
-
-<p id="demo"></p>
-
-<div id="map" style="height: 400px; width: 100%;"></div>
+<!-- The div element where the map will be displayed -->
+<div id="map"></div>
 
 <script>
-// Get the demo element
-const x = document.getElementById("demo");
+// Function to get location, update the server, and display the map
+function getLocationAndUpdateServer() {
+    const status = document.getElementById("status");
 
-// Function to get location
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition, showError);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            status.innerHTML = "Location found. Sending to server and displaying on map...";
+
+            // Sending location to the server via AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "update_location.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    status.innerHTML = "Location updated on server.";
+                } else if (xhr.readyState === 4) {
+                    status.innerHTML = "Failed to update location on server.";
+                }
+            };
+            xhr.send("latitude=" + lat + "&longitude=" + lon);
+
+            // Displaying the map with the user's location
+            showMap(lat, lon);
+
+        }, function(error) {
+            status.innerHTML = "Unable to retrieve your location.";
+        });
+    } else {
+        status.innerHTML = "Geolocation is not supported by this browser.";
+    }
 }
 
-// Function to show position
-function showPosition(position) {
-  const lat = position.coords.latitude;
-  const lon = position.coords.longitude;
-  x.innerHTML = "Latitude: " + lat + "<br>Longitude: " + lon;
-  showMap(lat, lon);
-}
-
-// Function to show map
+// Function to show the map
 function showMap(lat, lon) {
-  const mapProp = {
-    center: new google.maps.LatLng(lat, lon),
-    zoom: 15,
-  };
-  const map = new google.maps.Map(document.getElementById("map"), mapProp);
-  const marker = new google.maps.Marker({
-    position: new google.maps.LatLng(lat, lon),
-    map: map,
-  });
+    const mapProp = {
+        center: new google.maps.LatLng(lat, lon),
+        zoom: 15,
+    };
+    const map = new google.maps.Map(document.getElementById("map"), mapProp);
+    const marker = new google.maps.Marker({
+        position: new google.maps.LatLng(lat, lon),
+        map: map,
+    });
 }
 
-// Function to handle errors
-function showError(error) {
-  switch(error.code) {
-    case error.PERMISSION_DENIED:
-      x.innerHTML = "User denied the request for Geolocation.";
-      break;
-    case error.POSITION_UNAVAILABLE:
-      x.innerHTML = "Location information is unavailable.";
-      break;
-    case error.TIMEOUT:
-      x.innerHTML = "The request to get user location timed out.";
-      break;
-    case error.UNKNOWN_ERROR:
-      x.innerHTML = "An unknown error occurred.";
-      break;
-  }
-}
+// Get location and update the server as soon as the page loads
+window.onload = getLocationAndUpdateServer;
 </script>
 
 <!-- Include Google Maps API -->
